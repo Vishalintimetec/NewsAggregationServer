@@ -42,34 +42,22 @@ class ExternalServerRepository:
         update_fields = []
         values = []
 
-        if server.server_name is not None:
-            update_fields.append("server_name = %s")
-            values.append(server.server_name)
-
         if server.api_key is not None:
             update_fields.append("api_key = %s")
             values.append(server.api_key)
-
-        if server.base_url is not None:
-            update_fields.append("base_url = %s")
-            values.append(server.base_url)
-
-        if server.is_active is not None:
-            update_fields.append("is_active = %s")
-            values.append(server.is_active)
 
         if update_fields:
             update_fields.append("last_accessed = %s")
             values.append(datetime.now())
             values.append(server_id)
 
-            query = f"UPDATE external_servers SET {', '.join(update_fields)} WHERE server_id = %s"
+            query = f"UPDATE external_server SET {', '.join(update_fields)} WHERE server_id = %s"
             cursor.execute(query, values)
             conn.commit()
 
         cursor.close()
         conn.close()
-        return self.get_server_by_id(server_id)
+        return {"message": f"Server with ID {server_id} updated successfully"}
 
     # def delete(self, server_id: int):
     #     conn = DbConnection.get_db_connection()

@@ -1,6 +1,7 @@
 from server.repos.article_repo import ArticleRepository
 from server.repos.personalization_repo import PersonalizationRepo
 from server.repos.user_repository import UserRepository
+from server.schemas.article_search import SearchArticleRequest
 from server.services.blocked_keyword_service import BlockedKeywordService
 
 
@@ -44,10 +45,15 @@ class UserService:
     def delete_article(self, user_id, article_id):
         return self.repo.remove_saved_article(user_id, article_id)
 
-    def search_articles(self, user_id, query, start, end, sort_by):
-        articles = self.repo.search_articles(query, start, end, sort_by)
+    def search_articles(self, search_request: SearchArticleRequest, user_id):
+        articles = self.repo.get_news_by_keyword(search_request)
         articles = self.filter_blocked_articles(articles)
         return self.personalize_articles(user_id, articles)
+
+    # def search_articles(self, user_id, query, start, end):
+    #     articles = self.repo.search_articles(query, start, end)
+    #     articles = self.filter_blocked_articles(articles)
+    #     return self.personalize_articles(user_id, articles)
 
     def personalize_articles(self, user_id, articles):
         category_counts = self.personalization_repo.get_user_category_counts(user_id)

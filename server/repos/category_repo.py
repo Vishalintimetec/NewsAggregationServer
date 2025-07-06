@@ -61,7 +61,7 @@ class CategoryRepo:
     def get_all_categories(self):
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
-        cursor.execute("SELECT category_id, category_name FROM category")
+        cursor.execute("SELECT category_id, category_name FROM category order by category_id")
         categories = cursor.fetchall()
         cursor.close()
         conn.close()

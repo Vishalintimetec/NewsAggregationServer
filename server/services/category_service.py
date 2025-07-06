@@ -1,3 +1,5 @@
+from fastapi import HTTPException
+
 from server.repos.category_repo import CategoryRepo
 
 
@@ -8,7 +10,7 @@ class CategoryService:
     def create_category(self, category_name):
         existing = self.category_repo.find_category(category_name)
         if existing:
-            raise ValueError(f"Category '{category_name}' already exists")
+            raise HTTPException(status_code=400, detail=f"Category '{category_name}' already exists")
         return self.category_repo.create_category(category_name)
 
     def set_category_visibility(self, category_id: int, is_visible):

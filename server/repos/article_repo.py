@@ -1,4 +1,6 @@
 from server.core.database_connection import get_db_connection
+from server.schemas.article_search import SearchArticleRequest
+
 
 class ArticleRepository:
 
@@ -88,29 +90,30 @@ class ArticleRepository:
         conn.close()
         return {"message": "Article deleted."}
 
-    def search_articles(self, query, start, end, sort_by):
+    def get_news_by_keyword(self, search_request: SearchArticleRequest):
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
 
-        sql = """
-            SELECT DISTINCT a.*, c.category_name
+        keyword = f"%{search_request.keyword}%"
+        start_date = search_request.start_date
+        end_date = search_request.end_date
+
+        query = """
+            SELECT a.article_id, title, description, content, source, url, published_at, c.category_name
             FROM articles a
             JOIN article_category_mapping acm ON a.article_id = acm.article_id
-            JOIN category c ON acm.category_id = c.category_id
-            WHERE (a.title LIKE %s OR a.description LIKE %s)
+            JOIN category c ON acm.category_id = c.category_id 
+            WHERE c.is_visible = TRUE
               AND a.is_visible = TRUE
-              AND c.is_visible = TRUE
+              AND CONCAT_WS(' ', title, description, content) LIKE %s
         """
-        params = [f"%{query}%", f"%{query}%"]
+        params = [keyword]
 
-        if start and end:
-            sql += " AND a.published_at BETWEEN %s AND %s"
-            params += [start, end]
+        if start_date and end_date:
+            query += " AND DATE(published_at) >= %s AND DATE(published_at) <= %s"
+            params += [start_date, end_date]
 
-        if sort_by in ["likes", "dislikes"]:
-            sql += f" ORDER BY a.{sort_by} DESC"
-
-        cursor.execute(sql, tuple(params))
+        cursor.execute(query, tuple(params))
         result = cursor.fetchall()
         cursor.close()
         conn.close()

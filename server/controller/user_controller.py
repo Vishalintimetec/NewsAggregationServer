@@ -1,3 +1,4 @@
+from server.schemas.article_search import SearchArticleRequest
 from server.services.user_service import UserService
 
 class UserController:
@@ -22,8 +23,11 @@ class UserController:
     def delete_article(self, user_id, article_id):
         return self.service.delete_article(user_id, article_id)
 
-    def search_articles(self, query, start_date, end_date, sort_by):
-        return self.service.search_articles(query, start_date, end_date, sort_by)
+    # def search_articles(self, query, start_date, end_date, user_id):
+    #     return self.service.search_articles(query, start_date, end_date, user_id)
+
+    def search_articles(self, search_request: SearchArticleRequest, user_id):
+        return self.service.search_articles(search_request, user_id)
 
     def logout(self, user_id):
         return self.service.logout(user_id)

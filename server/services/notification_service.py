@@ -18,15 +18,7 @@ class NotificationService:
     def get_preferences(self, user_id):
         return self.repo.get_preferences_by_user(user_id)
 
-    # def update_preference(self, user_id, preference_id, preference_data):
-    #     return self.repo.update_preference(user_id, preference_id, preference_data)
-
-    # services/user_service.py
     def configure_notifications(self, user_id, config_data):
-        # Clear existing preferences for this user
-        # self.repo.clear_user_preferences(user_id)
-
-        # Create new preferences based on configuration
         results = []
         for config in config_data.configurations:
             if config.is_enabled:

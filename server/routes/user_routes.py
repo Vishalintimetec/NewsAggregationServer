@@ -3,6 +3,8 @@ from server.controller.user_controller import UserController
 from server.core.jwt_utils import get_current_user
 from typing import Optional
 
+from server.schemas.article_search import SearchArticleRequest
+
 router = APIRouter(prefix="/user", tags=["user"])
 controller = UserController()
 
@@ -31,9 +33,15 @@ def save_article(article_id: int, user=Depends(get_current_user)):
 def delete_saved_article(article_id: int, user=Depends(get_current_user)):
     return controller.delete_article(user['user_id'], article_id)
 
-@router.get("/search")
-def search_articles(query: str, start_date: Optional[str] = None, end_date: Optional[str] = None, sort_by: Optional[str] = "likes"):
-    return controller.search_articles(query, start_date, end_date, sort_by)
+@router.post("/search")
+def search_articles(
+    search_request: SearchArticleRequest,
+    user=Depends(get_current_user)
+):
+    # Optionally, you can pass user['user_id'] if you want personalization
+    return {"articles": controller.search_articles(search_request, user['user_id'])}
+# def search_articles(query: str, start_date: Optional[str] = None, end_date: Optional[str] = None, user=Depends(get_current_user)):
+#     return controller.search_articles(query, start_date, end_date, user['user_id'])
 
 @router.post("/logout")
 def logout(user=Depends(get_current_user)):

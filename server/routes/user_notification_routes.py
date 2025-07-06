@@ -8,17 +8,13 @@ from typing import List
 router = APIRouter(prefix="/notifications", tags=["notifications"])
 controller = NotificationController()
 
-@router.post("/preference")
-def create_preference(preference: NotificationPreferenceCreate, user=Depends(get_current_user)):
-    return controller.create_preference(user["user_id"], preference)
+# @router.post("/preference")
+# def create_preference(preference: NotificationPreferenceCreate, user=Depends(get_current_user)):
+#     return controller.create_preference(user["user_id"], preference)
 
 @router.get("/preferences", response_model=List[NotificationPreferenceOut])
 def get_preferences(user=Depends(get_current_user)):
     return controller.get_preferences(user["user_id"])
-
-# @router.put("/preference/{preference_id}")
-# def update_preference(preference_id: int, preference: NotificationPrefrenceUpdate, user=Depends(get_current_user)):
-#     return controller.update_preference(user["user_id"], preference_id, preference)
 
 @router.post("/configure-notifications")
 def configure_notifications(config_data: BulkNotificationConfig, user=Depends(get_current_user)):
