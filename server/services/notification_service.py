@@ -19,18 +19,8 @@ class NotificationService:
         return self.repo.get_preferences_by_user(user_id)
 
     def configure_notifications(self, user_id, config_data):
-        results = []
-        for config in config_data.configurations:
-            if config.is_enabled:
-                for keyword in config.keywords:
-                    preference_data = type('obj', (object,), {
-                        'category': config.category_name,
-                        'keyword': keyword if keyword != 'all' else None
-                    })
-                    result = self.repo.insert_preference(user_id, preference_data)
-                    results.append(result)
+        return self.repo.configure_notifications(user_id, [c.dict() for c in config_data.configurations])
 
-        return {"message": f"Notification preferences configured successfully. {len(results)} preferences created."}
 
     def delete_preference(self, user_id, preference_id):
         return self.repo.delete_preference(user_id, preference_id)

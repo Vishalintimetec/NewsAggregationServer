@@ -11,6 +11,6 @@ def sync_news_job():
 
 def start_news_sync_scheduler():
     scheduler = BackgroundScheduler()
-    scheduler.add_job(sync_news_job, 'interval', minutes = 4)
+    scheduler.add_job(sync_news_job, 'interval', hours = 4)
     scheduler.start()
     print("News sync scheduler started: will run every 4 hours.")

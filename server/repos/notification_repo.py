@@ -39,28 +39,9 @@ class NotificationRepo:
         conn.close()
         return preferences
 
-    # def update_preference(self, user_id, pref_id, data):
-    #     category_id = category_repo.get_category_id_by_name(data.category)
-    #     conn = get_db_connection()
-    #     cursor = conn.cursor(dictionary=True)
-    #     cursor.execute("""
-    #         UPDATE notification_preferences
-    #         SET category_id = %s, is_enabled = %s, keyword = %s
-    #         WHERE id = %s AND user_id = %s
-    #     """, (category_id, data.is_enabled, data.keyword, pref_id, user_id))
-    #     conn.commit()
-    #     cursor.close()
-    #     conn.close()
-    #     return {
-    #        "Prefrence updated successfully"
-    #     }
-
     def configure_notifications(self, user_id, config_data):
         conn = get_db_connection()
         cursor = conn.cursor()
-
-        # First, clear existing preferences for this user
-        # cursor.execute("DELETE FROM notification_preferences WHERE user_id = %s", (user_id,))
 
         # Insert new preferences
         for config in config_data:
@@ -74,13 +55,20 @@ class NotificationRepo:
                     cursor.execute("""
                         INSERT INTO notification_preferences (user_id, category_id, is_enabled, keyword)
                         VALUES (%s, %s, %s, %s)
-                    """, (user_id, category_id, True, keyword))
+                    """, (user_id, category_id, 1, keyword))
             elif is_enabled:
                 # Insert one row without keyword
                 cursor.execute("""
                     INSERT INTO notification_preferences (user_id, category_id, is_enabled, keyword)
                     VALUES (%s, %s, %s, NULL)
-                """, (user_id, category_id, True))
+                """, (user_id, category_id, 1))
+            else:
+                # Insert a row to indicate this category is disabled
+                cursor.execute("""
+                            UPDATE notification_preferences
+                            SET is_enabled = 0
+                            WHERE user_id = %s AND category_id = %s
+                        """, (user_id, category_id))
 
         conn.commit()
         cursor.close()
