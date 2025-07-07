@@ -1,0 +1,2 @@
+class BlockedKeywordNotFoundException(Exception):
+    pass
