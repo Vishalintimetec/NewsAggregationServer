@@ -11,8 +11,6 @@ class NotificationService:
 
     def create_preference(self, user_id, preference_data):
         print(preference_data.category)
-        # category_id = self.category_repo.get_category_by_name(preference_data.category)["category_id"]
-        # print(category_id)
         return self.repo.insert_preference(user_id, preference_data)
 
     def get_preferences(self, user_id):
@@ -21,6 +19,10 @@ class NotificationService:
     def configure_notifications(self, user_id, config_data):
         return self.repo.configure_notifications(user_id, [c.dict() for c in config_data.configurations])
 
+    def get_unread_notifications(self, user_id):
+        unread_articles =  self.repo.get_unread_notifications(user_id)
+        self.repo.mark_notification_as_read(user_id)
+        return unread_articles
 
     def delete_preference(self, user_id, preference_id):
         return self.repo.delete_preference(user_id, preference_id)

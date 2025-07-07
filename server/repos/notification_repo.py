@@ -122,6 +122,20 @@ class NotificationRepo:
         conn.close()
         return results
 
+    def get_unread_notifications(self, user_id):
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("""
+              SELECT id, article_id, message, created_at
+              FROM notifications
+              WHERE user_id = %s AND is_read = 0
+              ORDER BY created_at DESC
+          """, (user_id,))
+        notifications = cursor.fetchall()
+        cursor.close()
+        conn.close()
+        return notifications
+
     # def mark_all_notifications_as_read(self):
     #     conn = get_db_connection()
     #     cursor = conn.cursor()
@@ -129,3 +143,16 @@ class NotificationRepo:
     #     conn.commit()
     #     cursor.close()
     #     conn.close()
+
+    def mark_notification_as_read(self, user_id):
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("""
+              UPDATE notifications
+              SET is_read = 1
+              WHERE user_id = %s AND is_read = 0
+          """, (user_id,))
+        conn.commit()
+        cursor.close()
+        conn.close()
+        return {"message": "Notification marked as read."}

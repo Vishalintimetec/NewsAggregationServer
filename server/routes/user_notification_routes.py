@@ -23,3 +23,7 @@ def configure_notifications(config_data: BulkNotificationConfig, user=Depends(ge
 @router.delete("/preference/{preference_id}")
 def delete_preference(preference_id: int, user=Depends(get_current_user)):
     return controller.delete_preference(user["user_id"], preference_id)
+
+@router.get("/unread")
+def get_unread_notifications(user=Depends(get_current_user)):
+    return controller.get_unread_notifications(user["user_id"])

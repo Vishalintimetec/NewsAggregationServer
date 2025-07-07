@@ -19,3 +19,6 @@ class NotificationController:
 
     def delete_preference(self, user_id, preference_id):
         return self.service.delete_preference(user_id, preference_id)
+
+    def get_unread_notifications(self, user_id):
+        return self.service.get_unread_notifications(user_id)
