@@ -13,7 +13,7 @@ auth_controller = AuthController()
 def login(user_data: UserCredentials):
     try:
         return auth_controller.login(user_data)
-    except Exception as e:
+    except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
 

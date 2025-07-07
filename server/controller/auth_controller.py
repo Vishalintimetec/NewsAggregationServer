@@ -11,14 +11,8 @@ class AuthController:
         self.auth_service = AuthenticationService()
 
     def login(self, user_data: UserCredentials):
-        try:
-            return self.auth_service.login(user_data)
-        except Exception as e:
-            raise HTTPException(status_code=HTTP_BAD_REQUEST, detail=str(e))
+        return self.auth_service.login(user_data)
 
     def register(self, user: UserCreate):
-            try:
-                db_user = self.auth_service.register_user(user)
-                return db_user
-            except ValueError as e:
-                raise HTTPException(status_code=400, detail=str(e))
+        db_user = self.auth_service.register_user(user)
+        return db_user

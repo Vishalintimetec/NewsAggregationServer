@@ -1,58 +1,53 @@
-from server.core.database_connection import get_db_connection
-
+from server.core.db_context import get_db_cursor
 class PersonalizationRepo:
 
     def get_user_category_counts(self, user_id):
-        conn = get_db_connection()
-        cursor = conn.cursor(dictionary=True)
-        cursor.execute("""
-            SELECT c.category_name, SUM(cnt) as total_count
-            FROM (
-                SELECT acm.category_id, COUNT(*) as cnt
-                FROM article_preferences ap
-                JOIN article_category_mapping acm ON ap.article_id = acm.article_id
-                WHERE ap.user_id = %s
-                GROUP BY acm.category_id
+        with get_db_cursor(dictionary=True) as (conn, cursor):
+            cursor.execute("""
+                SELECT c.category_name, SUM(cnt) as total_count
+                FROM (
+                    SELECT acm.category_id, COUNT(*) as cnt
+                    FROM article_preferences ap
+                    JOIN article_category_mapping acm ON ap.article_id = acm.article_id
+                    WHERE ap.user_id = %s
+                    GROUP BY acm.category_id
 
-                UNION ALL
+                    UNION ALL
 
-                SELECT acm.category_id, COUNT(*) as cnt
-                FROM user_article_view_history rh
-                JOIN article_category_mapping acm ON rh.article_id = acm.article_id
-                WHERE rh.user_id = %s
-                GROUP BY acm.category_id
+                    SELECT acm.category_id, COUNT(*) as cnt
+                    FROM user_article_view_history rh
+                    JOIN article_category_mapping acm ON rh.article_id = acm.article_id
+                    WHERE rh.user_id = %s
+                    GROUP BY acm.category_id
 
-                UNION ALL
+                    UNION ALL
 
-                SELECT acm.category_id, COUNT(*) as cnt
-                FROM saved_article sa
-                JOIN article_category_mapping acm ON sa.article_id = acm.article_id
-                WHERE sa.user_id = %s
-                GROUP BY acm.category_id
+                    SELECT acm.category_id, COUNT(*) as cnt
+                    FROM saved_article sa
+                    JOIN article_category_mapping acm ON sa.article_id = acm.article_id
+                    WHERE sa.user_id = %s
+                    GROUP BY acm.category_id
 
-                UNION ALL
+                    UNION ALL
 
-                SELECT np.category_id, COUNT(*) as cnt
-                FROM notification_preferences np
-                WHERE np.user_id = %s AND np.is_enabled = TRUE
-                GROUP BY np.category_id
+                    SELECT np.category_id, COUNT(*) as cnt
+                    FROM notification_preferences np
+                    WHERE np.user_id = %s AND np.is_enabled = TRUE
+                    GROUP BY np.category_id
 
-                UNION ALL
+                    UNION ALL
 
-                SELECT uns.category_id, COUNT(*) as cnt
-                FROM notification_preferences uns
-                WHERE uns.user_id = %s AND uns.is_enabled = TRUE
-                GROUP BY uns.category_id
-            ) as all_cats
-            JOIN category c ON all_cats.category_id = c.category_id
-            GROUP BY c.category_name
-            ORDER BY total_count DESC
-        """, (user_id, user_id, user_id, user_id, user_id))
-        result = cursor.fetchall()
-        cursor.close()
-        conn.close()
-        # Return as a dict: {category_name: count, ...}
-        return {row['category_name']: row['total_count'] for row in result}
+                    SELECT uns.category_id, COUNT(*) as cnt
+                    FROM notification_preferences uns
+                    WHERE uns.user_id = %s AND uns.is_enabled = TRUE
+                    GROUP BY uns.category_id
+                ) as all_cats
+                JOIN category c ON all_cats.category_id = c.category_id
+                GROUP BY c.category_name
+                ORDER BY total_count DESC
+            """, (user_id, user_id, user_id, user_id, user_id))
+            result = cursor.fetchall()
+            return {row['category_name']: row['total_count'] for row in result}
 
     # def get_articles_by_preference(self, user_id, preference):
     #     conn = get_db_connection()

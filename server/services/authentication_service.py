@@ -16,22 +16,21 @@ class AuthenticationService:
 
     def login(self, user_data: UserCredentials):
         user = self.user_repo.get_user_by_email(user_data.email)
-
-        if verify_password(plain_password=user_data.password,
-                           hashed_password=user['password']):
-            token_payload = {
-                "email": user["email"],
-                "user_id": user["user_id"],
-                "role": user["user_role"]
-            }
-            access_token = create_access_token(token_payload)
-        else:
+        if not user:
+            raise ValueError("Incorrect Email")
+        if not verify_password(plain_password=user_data.password,
+                               hashed_password=user['password']):
             raise ValueError("Incorrect Password")
+        token_payload = {
+            "email": user["email"],
+            "user_id": user["user_id"],
+            "role": user["user_role"]
+        }
+        access_token = create_access_token(token_payload)
         return {
             "access_token": access_token,
             "token_type": "bearer",
             "role": user["user_role"],
             "email" : user["email"]
         }
-
 
